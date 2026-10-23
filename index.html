@@ -39,7 +39,7 @@ document.getElementById('dateLabel').textContent=today()+' · 오늘';
 document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab||(b.dataset.tab==='more'&&['goals','charts','backup'].includes(tab))));
 const app=document.getElementById('app');
 if(tab==='home'){
-const day=data.logs.filter(l=>l.date===today()),w=periodLogs('week'),m=periodLogs('month'),dashboardTargets=monthlyCumulativeDifference(today()),wp=plan('week'),mp=plan('month');
+const day=data.logs.filter(l=>l.date===today()),todayPlan=data.calendarPlans[today()]||{},w=periodLogs('week'),m=periodLogs('month'),dashboardTargets=monthlyCumulativeDifference(today()),wp=plan('week'),mp=plan('month');
 app.innerHTML='<section class="card"><div class="row"><div><h2>오늘의 상황</h2><div class="muted">'+today()+' 실적</div></div><button class="btn primary" id="quickLog">＋ 기록 추가</button></div><div class="grid" style="margin-top:12px">'+metric('봉사 시간',sum(day,'hours'),dashboardTargets.hours)+metric('재방문',sum(day,'visits'),dashboardTargets.visits)+metric('성서 연구',sum(day,'studies'),dashboardTargets.studies).replace(/\.00/g,'')+'</div><p class="muted">목표 수치는 월 일별 계획표에서 오늘까지의 누적 차이를 표시합니다.</p><div class="today-agenda"><div class="item"><strong>오늘 함께 봉사할 짝</strong><div class="muted">'+esc((todayPlan.companions||[]).join(', ')||'오늘 계획된 봉사짝이 없습니다.')+'</div></div><div class="item"><div class="row"><strong>오늘 방문할 재방 · 성서 연구</strong><button class="btn small" id="goPeople">대상자 보기</button></div>'+followups()+'</div></div></section>'+
 
 '<section class="card"><h2>이번 주 진행 상황</h2><div class="grid">'+metric('시간',sum(w,'hours'),wp.hours)+metric('재방문',sum(w,'visits'),wp.visits)+metric('연구',sum(w,'studies'),wp.studies)+'</div></section>'+
