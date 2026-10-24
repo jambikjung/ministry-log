@@ -42,7 +42,36 @@ const UI_TRANSLATIONS={"en":{"야외 봉사 기록":"Ministry Log","오늘의 �
 function activeLocale(){return data.language==='ko'?'ko-KR':data.language==='id'?'id-ID':'en-US'}
 function localeDate(iso,opts={year:'numeric',month:'short',day:'numeric'}){const p=String(iso).slice(0,10).split('-').map(Number);if(p.length!==3||!p[0]||!p[1]||!p[2])return iso;return new Intl.DateTimeFormat(activeLocale(),{...opts,timeZone:'UTC'}).format(new Date(Date.UTC(p[0],p[1]-1,p[2],12)))}
 function localeMonth(y,m){return new Intl.DateTimeFormat(activeLocale(),{year:'numeric',month:'long',timeZone:'UTC'}).format(new Date(Date.UTC(y,m-1,1,12)))}
-function translateUiText(value){const lang=data.language==='id'?'id':data.language==='ko'?'ko':'en',dict=UI_TRANSLATIONS[lang]||UI_TRANSLATIONS.en,trim=value.trim();let m;if(lang==='ko'){if((m=trim.match(/^(\d{4})-(\d{2})-(\d{2}) · 오늘$/)))return value.replace(trim,localeDate(m[0].slice(0,10),{year:'numeric',month:'numeric',day:'numeric'})+' · 오늘');if((m=trim.match(/^(\d{4})-(\d{2})-(\d{2}) 실적$/)))return value.replace(trim,localeDate(m[0].slice(0,10),{year:'numeric',month:'numeric',day:'numeric'})+' 실적');if(/^\d{4}-\d{2}-\d{2}$/.test(trim))return value.replace(trim,localeDate(trim,{year:'numeric',month:'numeric',day:'numeric'}));if((m=trim.match(/^(\d{4})-(\d{2}) 월간 목표$/)))return value.replace(trim,localeMonth(+m[1],+m[2])+' 월간 목표');if((m=trim.match(/^(\d{4})-(\d{2}) 계획 및 실적$/)))return value.replace(trim,localeMonth(+m[1],+m[2])+' 계획 및 실적');return value}let out=dict[trim];if(out===undefined){const icon=trim.match(/^([^A-Za-z가-힣0-9]+)(.+)$/);if(icon&&dict[icon[2]])out=icon[1]+dict[icon[2]];if(out===undefined&&(m=trim.match(/^(\d{4})-(\d{2})-(\d{2}) · 오늘$/)))out=localeDate(m[0].slice(0,10))+' · '+(lang==='id'?'Hari Ini':'Today');else if((m=trim.match(/^(\d{4})-(\d{2})-(\d{2}) 실적$/)))out=localeDate(trim.slice(0,10))+' '+(lang==='id'?'Realisasi':'Actual');else if(/^\d{4}-\d{2}-\d{2}$/.test(trim))out=localeDate(trim);else if((m=trim.match(/^(\d{4})-(\d{2}) 월간 목표$/)))out=localeMonth(+m[1],+m[2])+(lang==='id'?' — Target Bulanan':' Goals');else if((m=trim.match(/^(\d{4})-(\d{2}) 계획 및 실적$/)))out=localeMonth(+m[1],+m[2])+(lang==='id'?' — Rencana & Realisasi':' — Plan & Actual');else if((m=trim.match(/^(\d{4})년 (\d{1,2})월$/)))out=localeMonth(+m[1],+m[2]);else if((m=trim.match(/^(\d{4})년 봉사년도 월별 실적$/)))out=m[1]+' '+(lang==='id'?'Hasil Bulanan Tahun Dinas':'Service Year Monthly Results');else if((m=trim.match(/^(\d+)건의 방문 기록$/)))out=m[1]+' '+(lang==='id'?'catatan kunjungan':'visit records');else if((m=trim.match(/^정기 방문: 매주 (.+)$/)))out=(lang==='id'?'Kunjungan rutin: setiap ':'Regular visit: every ')+translateUiText(m[1]);else if((m=trim.match(/^(일요일|월요일|화요일|수요일|목요일|금요일|토요일)$/))){const ix=['일요일','월요일','화요일','수요일','목요일','금요일','토요일'].indexOf(m[1]);out=new Intl.DateTimeFormat(activeLocale(),{weekday:'long',timeZone:'UTC'}).format(new Date(Date.UTC(2026,9,4+ix,12)))}else if((m=trim.match(/^(일|월|화|수|목|금|토)$/))){const ix=['일','월','화','수','목','금','토'].indexOf(m[1]);out=new Intl.DateTimeFormat(activeLocale(),{weekday:'short',timeZone:'UTC'}).format(new Date(Date.UTC(2026,9,4+ix,12)))}else out=trim}return value.replace(trim,out)}
+function translateUiText(value){
+const trim=value.trim();if(!trim)return value;
+const lang=data.language==='id'?'id':data.language==='ko'?'ko':'en';
+let m,out;
+if(lang==='ko'){
+if((m=trim.match(/^(\d{4})-(\d{2})-(\d{2}) · 오늘$/)))out=localeDate(trim.slice(0,10),{year:'numeric',month:'numeric',day:'numeric'})+' · 오늘';
+else if((m=trim.match(/^(\d{4})-(\d{2})-(\d{2}) 실적$/)))out=localeDate(trim.slice(0,10),{year:'numeric',month:'numeric',day:'numeric'})+' 실적';
+else if(/^\d{4}-\d{2}-\d{2}$/.test(trim))out=localeDate(trim,{year:'numeric',month:'numeric',day:'numeric'});
+else if((m=trim.match(/^(\d{4})-(\d{2}) 월간 목표$/)))out=localeMonth(+m[1],+m[2])+' 월간 목표';
+else if((m=trim.match(/^(\d{4})-(\d{2}) 계획 및 실적$/)))out=localeMonth(+m[1],+m[2])+' 계획 및 실적';
+else return value;
+}else{
+const dict=UI_TRANSLATIONS[lang]||UI_TRANSLATIONS.en;
+out=dict[trim];
+if(out===undefined&&(m=trim.match(/^(\d{4})-(\d{2})-(\d{2}) · 오늘$/)))out=localeDate(trim.slice(0,10))+' · '+(lang==='id'?'Hari Ini':'Today');
+else if(out===undefined&&(m=trim.match(/^(\d{4})-(\d{2})-(\d{2}) 실적$/)))out=localeDate(trim.slice(0,10))+' '+(lang==='id'?'Realisasi':'Actual');
+else if(out===undefined&&/^\d{4}-\d{2}-\d{2}$/.test(trim))out=localeDate(trim);
+else if(out===undefined&&(m=trim.match(/^(\d{4})-(\d{2}) 월간 목표$/)))out=localeMonth(+m[1],+m[2])+(lang==='id'?' — Target Bulanan':' Goals');
+else if(out===undefined&&(m=trim.match(/^(\d{4})-(\d{2}) 계획 및 실적$/)))out=localeMonth(+m[1],+m[2])+(lang==='id'?' — Rencana & Realisasi':' — Plan & Actual');
+else if(out===undefined&&(m=trim.match(/^(\d{4})년 (\d{1,2})월$/)))out=localeMonth(+m[1],+m[2]);
+else if(out===undefined&&(m=trim.match(/^(\d{4})년 봉사년도 월별 실적$/)))out=m[1]+' '+(lang==='id'?'Hasil Bulanan Tahun Dinas':'Service Year Monthly Results');
+else if(out===undefined&&(m=trim.match(/^(\d+)건의 방문 기록$/)))out=m[1]+' '+(lang==='id'?'catatan kunjungan':'visit records');
+else if(out===undefined&&(m=trim.match(/^정기 방문: 매주 (.+)$/)))out=(lang==='id'?'Kunjungan rutin: setiap ':'Regular visit: every ')+translateUiText(m[1]);
+else if(out===undefined&&(m=trim.match(/^(일요일|월요일|화요일|수요일|목요일|금요일|토요일)$/))){const ix=['일요일','월요일','화요일','수요일','목요일','금요일','토요일'].indexOf(m[1]);out=new Intl.DateTimeFormat(activeLocale(),{weekday:'long',timeZone:'UTC'}).format(new Date(Date.UTC(2026,9,4+ix,12)))}
+else if(out===undefined&&(m=trim.match(/^(일|월|화|수|목|금|토)$/))){const ix=['일','월','화','수','목','금','토'].indexOf(m[1]);out=new Intl.DateTimeFormat(activeLocale(),{weekday:'short',timeZone:'UTC'}).format(new Date(Date.UTC(2026,9,4+ix,12)))}
+if(out===undefined){const icon=trim.match(/^([^A-Za-z가-힣0-9]+)(.+)$/);if(icon&&dict[icon[2]])out=icon[1]+dict[icon[2]]}
+if(out===undefined)return value
+}
+return value.replace(trim,out)
+}
 function localizeDom(root){if(!root)return;const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while(n=walker.nextNode())n.nodeValue=translateUiText(n.nodeValue);root.querySelectorAll('[placeholder],[aria-label],[title]').forEach(el=>['placeholder','aria-label','title'].forEach(a=>{const v=el.getAttribute(a);if(v)el.setAttribute(a,translateUiText(v))}))}
 function applyLanguage(){const lang=data.language||'en';document.documentElement.lang=lang==='ko'?'ko-KR':lang==='id'?'id-ID':'en-US';document.title=lang==='ko'?'야외 봉사 기록':lang==='id'?'Catatan Pelayanan':'Ministry Log';localizeDom(document.getElementById('app'));localizeDom(document.querySelector('header'));localizeDom(document.querySelector('nav'))}
 const alertNative=window.alert.bind(window),confirmNative=window.confirm.bind(window);window.alert=m=>alertNative(translateUiText(String(m)));window.confirm=m=>confirmNative(translateUiText(String(m)));
