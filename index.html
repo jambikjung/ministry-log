@@ -55,7 +55,7 @@ else if((m=trim.match(/^(\d{4})-(\d{2}) 계획 및 실적$/)))out=localeMonth(+m
 else return value;
 }else{
 const dict=UI_TRANSLATIONS[lang]||UI_TRANSLATIONS.en;
-out=context&&context.tagName==='TD'&&/^[일월화수목금토]$/.test(trim)?new Intl.DateTimeFormat(activeLocale(),{weekday:'short',timeZone:'UTC'}).format(new Date(Date.UTC(2026,9,4+['일','월','화','수','목','금','토'].indexOf(trim),12))):dict[trim];
+out=context&&(context.tagName==='TD'||context.classList.contains('weekday')||context.classList.contains('calhead'))&&/^[일월화수목금토]$/.test(trim)?new Intl.DateTimeFormat(activeLocale(),{weekday:'short',timeZone:'UTC'}).format(new Date(Date.UTC(2026,9,4+['일','월','화','수','목','금','토'].indexOf(trim),12))):dict[trim];
 if(out===undefined&&(m=trim.match(/^(\d{4})-(\d{2})-(\d{2}) · 오늘$/)))out=localeDate(trim.slice(0,10))+' · '+(lang==='id'?'Hari Ini':'Today');
 else if(out===undefined&&(m=trim.match(/^(\d{4})-(\d{2})-(\d{2}) 실적$/)))out=localeDate(trim.slice(0,10))+' '+(lang==='id'?'Realisasi':'Actual');
 else if(out===undefined&&/^\d{4}-\d{2}-\d{2}$/.test(trim))out=localeDate(trim);
